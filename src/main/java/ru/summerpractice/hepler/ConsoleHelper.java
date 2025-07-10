@@ -1,39 +1,55 @@
 package ru.summerpractice.hepler;
 
+import ru.summerpractice.model.interfaces.IOServiceInterface;
+
+import java.io.PrintStream;
 import java.util.Scanner;
 
-public class ConsoleHelper {
-    private static final Scanner SC = new Scanner(System.in);
+public class ConsoleHelper implements IOServiceInterface {
+    private final Scanner scanner = new Scanner(System.in);
+    private final PrintStream out = System.out;
 
-    public static String readString(String prompt) {
-        System.out.print(prompt);
-        return SC.nextLine().trim();
+    @Override
+    public String readString(String prompt) {
+        out.print(prompt);
+        return scanner.nextLine().trim();
     }
 
-    public static int readInt(String prompt, int min, int max) {
+    @Override
+    public int readInt(String prompt, int min, int max) {
         while (true) {
-            System.out.print(prompt);
+            out.print(prompt);
             try {
-                int v = Integer.parseInt(SC.nextLine().trim());
+                int v = Integer.parseInt(scanner.nextLine().trim());
                 if (v < min || v > max) {
-                    System.out.println("Введите число от " + min + " до " + max + ".");
+                    out.println("Введите число от " + min + " до " + max + ".");
                 } else {
                     return v;
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Неверный формат. Попробуйте снова.");
+                out.println("Неверный формат. Попробуйте снова.");
             }
         }
     }
 
-    public static boolean readBoolean(String prompt) {
+    @Override
+    public boolean readBoolean(String prompt) {
         while (true) {
-            System.out.print(prompt);
-            String s = SC.nextLine().trim().toLowerCase();
+            out.print(prompt);
+            String s = scanner.nextLine().trim().toLowerCase();
             if (s.equals("y") || s.equals("yes") || s.equals("д")) return true;
             if (s.equals("n") || s.equals("no") || s.equals("н")) return false;
-            System.out.println("Введите y/n.");
+            out.println("Введите y/n.");
         }
     }
-}
 
+    @Override
+    public void print(String message) {
+        out.print(message);
+    }
+
+    @Override
+    public void println(String message) {
+        out.println(message);
+    }
+}
