@@ -4,4 +4,9 @@
   <groupId>org.alexspeal</groupId>
   <artifactId>SummerPractice</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>ui</module>
+    <module>core</module>
+  </modules>
 </project>
