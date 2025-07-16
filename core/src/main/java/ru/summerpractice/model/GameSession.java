@@ -29,44 +29,70 @@ public class GameSession {
         int secret = generator.generate(diff.getMin(), diff.getMax());
         log.debug("Сессия для {} сгенерировала число {}", player.getName(), secret);
 
-        io.println("\nЯ загадал число от " + diff.getMin() +
-                " до " + diff.getMax() +
-                (diff.getMaxAttempts() < Integer.MAX_VALUE
-                        ? " (лимит " + diff.getMaxAttempts() + " попыток)" : "") +
-                ". Попробуйте угадать!");
+        printIntroduction();
+        runGameLoop(secret);
+    }
 
+    private void printIntroduction() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nЯ загадал число от ")
+                .append(diff.getMin())
+                .append(" до ")
+                .append(diff.getMax());
+        if (diff.getMaxAttempts() < Integer.MAX_VALUE) {
+            sb.append(" (лимит ")
+                    .append(diff.getMaxAttempts())
+                    .append(" попыток)");
+        }
+        sb.append(". Попробуйте угадать!");
+        io.println(sb.toString());
+    }
+
+    private void runGameLoop(int secret) {
         int attempts = 0;
         long startTime = System.currentTimeMillis();
 
         while (attempts < diff.getMaxAttempts()) {
             attempts++;
-            int guess = io.readInt("Попытка " + attempts + ": ",
-                    diff.getMin(), diff.getMax());
+            int guess = readGuess(attempts);
             log.debug("Попытка #{}: введено {}", attempts, guess);
 
             if (guess == secret) {
-                long timeTaken = System.currentTimeMillis() - startTime;
-                log.info("Игрок {} угадал число {} за {} попыток ({} ms)",
-                        player.getName(), secret, attempts, timeTaken);
-                io.println("Всё верно! Вы угадали за " +
-                        attempts + " попыток и " +
-                        (timeTaken / 1000.0) + " сек.");
-                player.recordResult(attempts, timeTaken);
+                handleSuccess(attempts, startTime, secret);
                 return;
             }
 
-            String hint = HintService.getHint(guess, secret);
-            if (hint != null) {
-                io.println(hint);
-                log.trace("Подсказка: {}", hint);
-            }
-
+            handleHint(guess, secret);
             if (attempts == diff.getMaxAttempts()) {
-                log.warn("Игрок {} исчерпал все попытки; секрет был {}", player.getName(), secret);
-                io.println("☹ Вы исчерпали все попытки. Было загаданo: " + secret);
+                handleFailure(secret);
             }
         }
     }
+
+    private int readGuess(int attempt) {
+        String prompt = String.format("Попытка %d: ", attempt);
+        return io.readInt(prompt, diff.getMin(), diff.getMax());
+    }
+
+    private void handleSuccess(int attempts, long startTime, int secret) {
+        long timeTaken = System.currentTimeMillis() - startTime;
+        log.info("Игрок {} угадал число {} за {} попыток ({} ms)",
+                player.getName(), secret, attempts, timeTaken);
+        io.println(String.format("Всё верно! Вы угадали за %d попыток и %.2f сек.",
+                attempts, timeTaken / 1000.0));
+        player.recordResult(attempts, timeTaken);
+    }
+
+    private void handleHint(int guess, int secret) {
+        String hint = HintService.getHint(guess, secret);
+        if (hint != null) {
+            io.println(hint);
+            log.trace("Подсказка: {}", hint);
+        }
+    }
+
+    private void handleFailure(int secret) {
+        log.warn("Игрок {} исчерпал все попытки; секрет был {}", player.getName(), secret);
+        io.println("☹ Вы исчерпали все попытки. Было загаданo: " + secret);
+    }
 }
-
-
