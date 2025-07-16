@@ -64,7 +64,7 @@ public class GameSession {
 
             handleHint(guess, secret);
             if (attempts == diff.getMaxAttempts()) {
-                handleFailure(secret);
+                handleFailure(secret, attempts, startTime);
             }
         }
     }
@@ -91,8 +91,10 @@ public class GameSession {
         }
     }
 
-    private void handleFailure(int secret) {
+    private void handleFailure(int secret, int attempts, long startTime) {
         log.warn("Игрок {} исчерпал все попытки; секрет был {}", player.getName(), secret);
         io.println("☹ Вы исчерпали все попытки. Было загаданo: " + secret);
+        long timeTaken = System.currentTimeMillis() - startTime;
+        player.recordResult(attempts, timeTaken);
     }
 }
