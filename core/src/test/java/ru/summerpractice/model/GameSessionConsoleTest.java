@@ -17,7 +17,7 @@ import java.util.Scanner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GameSessionTest {
+class GameSessionConsoleTest {
     private final InputStream systemIn = System.in;
     private final PrintStream systemOut = System.out;
     private ByteArrayOutputStream testOut;
