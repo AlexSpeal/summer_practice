@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import ru.summerpractice.enums.Difficulty;
 import ru.summerpractice.model.interfaces.IOServiceInterface;
 import ru.summerpractice.model.interfaces.NumberGeneratorInterface;
+import ru.summerpractice.util.HintService;
 
 public class GameSession {
     private static final Logger log = LogManager.getLogger(GameSession.class);
@@ -54,26 +55,17 @@ public class GameSession {
                 return;
             }
 
-            giveHint(guess, secret);
+            String hint = HintService.getHint(guess, secret);
+            if (hint != null) {
+                io.println(hint);
+                log.trace("Подсказка: {}", hint);
+            }
+
             if (attempts == diff.getMaxAttempts()) {
                 log.warn("Игрок {} исчерпал все попытки; секрет был {}", player.getName(), secret);
                 io.println("☹ Вы исчерпали все попытки. Было загаданo: " + secret);
             }
         }
-    }
-
-    private void giveHint(int guess, int secret) {
-        int delta = Math.abs(guess - secret);
-        if (delta <= 5) {
-            io.println("Очень горячо!");
-        } else if (delta <= 15) {
-            io.println("Горячо");
-        } else if (delta <= 30) {
-            io.println("Тепло");
-        } else {
-            io.println("Холодно");
-        }
-        log.trace("Подсказка для {}: delta = {}", guess, delta);
     }
 }
 
